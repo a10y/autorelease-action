@@ -63,7 +63,7 @@ async function run() {
             body: `Autorelease bump ${tag}.`
         })
     } catch (e) {
-        core.setFailed(e.message);
+        core.setFailed(e);
     }
 }
 
