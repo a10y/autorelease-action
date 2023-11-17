@@ -4,6 +4,7 @@ inputs:
   token:  # id of input
     description: 'The GitHub token'
     required: true
+    default: '${{ secrets.GITHUB_TOKEN }}'
 runs:
   using: 'node20'
   main: 'index.js'
