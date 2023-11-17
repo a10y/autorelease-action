@@ -38,30 +38,34 @@ function bump(semver, majorMinorPatch) {
     throw new Error("Invalid bump type, must be one of major/minor/patch");
 }
 
-try {
-    const [ major, minor, patch ] = await gitVersion();
+async function run() {
+    try {
+        const [ major, minor, patch ] = await gitVersion();
 
 
-    const prevVersion = `${major}.${minor}.${patch}`;
-    const nextVersion = bump([major, minor, patch], "minor");
-    core.info(`Repository bump ${prevVersion} => ${nextVersion}`);
+        const prevVersion = `${major}.${minor}.${patch}`;
+        const nextVersion = bump([major, minor, patch], "minor");
+        core.info(`Repository bump ${prevVersion} => ${nextVersion}`);
 
-    const token = core.getInput("token");
-    const gh = github.getOctokit(token);
+        const token = core.getInput("token");
+        const gh = github.getOctokit(token);
 
-    // Get the list of pull requests
-    const result = await gh.rest.git.createTag({
-        ...github.context.repo,
-        message: `autorelease bump ${prevVersion} => ${nextVersion}`,
-        tag: nextVersion,
-        object: "main", // Tag the HEAD of main. Should probably instead rely on the new version of main.
-    });
+        // Get the list of pull requests
+        const result = await gh.rest.git.createTag({
+            ...github.context.repo,
+            message: `autorelease bump ${prevVersion} => ${nextVersion}`,
+            tag: nextVersion,
+            object: "main", // Tag the HEAD of main. Should probably instead rely on the new version of main.
+        });
 
-    gh.rest.repos.createRelease({
-        ...github.context.repo,
-        tag_name: result.data.tag,
-        body: `Autorelease bump ${tag}.`
-    })
-} catch (e) {
-    core.setFailed(e.message);
+        gh.rest.repos.createRelease({
+            ...github.context.repo,
+            tag_name: result.data.tag,
+            body: `Autorelease bump ${tag}.`
+        })
+    } catch (e) {
+        core.setFailed(e.message);
+    }
 }
+
+run();
