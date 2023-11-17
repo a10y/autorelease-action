@@ -61,6 +61,7 @@ async function run() {
             object: commit,
             type: "commit",
         });
+        core.info(result);
 
         gh.rest.repos.createRelease({
             ...github.context.repo,
