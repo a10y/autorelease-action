@@ -2,19 +2,18 @@ const core = require("@actions/core");
 const github = require("@actions/github");
 const exec = require("@actions/exec");
 
-// Minimum tag if no existing tag exists for the repo
-const DEFAULT_TAG = "0.0.0";
-
 const SEMVER_RE = /^(\d+)\.(\d+)\.(\d+)(-.*)?$/;
 
 async function gitVersion() {
-    const output = await exec.getExecOutput("git describe --tags");
-    if (!SEMVER_RE.test(output.stdout.trim())) {
+    const { stdout } = await exec.getExecOutput("git describe --tags");
+    const cleanVersion = stdout.trim();
+
+    if (!SEMVER_RE.test(cleanVersion)) {
         // Fallback
         return [0, 0, 0];
     }
 
-    const semverMatch = output.stdout.match(SEMVER_RE);
+    const semverMatch = cleanVersion.match(SEMVER_RE);
     return [
         parseInt(semverMatch[1]),
         parseInt(semverMatch[2]),
