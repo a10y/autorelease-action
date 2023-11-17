@@ -2,7 +2,7 @@ name: 'Autorelease'
 description: 'Create a new tag + release for every commit to main'
 inputs:
   token:  # id of input
-    description: 'The GitHub token, likely ${{secrets.GH_TOKEN}}'
+    description: 'The GitHub token'
     required: true
 runs:
   using: 'node20'
