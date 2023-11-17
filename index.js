@@ -43,7 +43,7 @@ async function run() {
         if (github.context.eventName !== "push") {
             throw new Error("Action can only be setup to trigger on `push` events");
         }
-        const commit = github.context.payload.headCommit;
+        const commit = github.context.payload.head_commit;
 
 
         const prevVersion = `${major}.${minor}.${patch}`;
