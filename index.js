@@ -54,19 +54,27 @@ async function run() {
         const gh = github.getOctokit(token);
 
         // Get the list of pull requests
-        const result = await gh.rest.git.createTag({
+        const tagResult = await gh.rest.git.createTag({
             ...github.context.repo,
-            message: `autorelease bump ${prevVersion} => ${nextVersion}`,
             tag: nextVersion,
+            message: `Autorelease ${nextVersion}`,
             object: commit,
             type: "commit",
         });
-        core.info(JSON.stringify(result));
+        core.info(JSON.stringify(tagResult));
+
+        const refResult = await gh.rest.git.createRef({
+            ...github.context.repo,
+            ref: nextVersion,
+            sha: tagResult.data.sha,
+        });
+
+        core.info(JSON.stringify(refResult));
 
         gh.rest.repos.createRelease({
             ...github.context.repo,
-            tag_name: result.data.tag,
-            body: `Autorelease bump ${tag}.`
+            tag_name: nextVersion,
+            body: `Autorelease ${nextVersion}.`
         })
     } catch (e) {
         core.setFailed(e);
