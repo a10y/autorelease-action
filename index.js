@@ -23,15 +23,15 @@ async function gitVersion() {
 
 function bump(semver, majorMinorPatch) {
     if (majorMinorPatch === "major") {
-        return `${semver[1] + 1}.${semver[2]}.${semver[3]}`;
+        return `${semver[0] + 1}.${semver[1]}.${semver[2]}`;
     }
 
     if (majorMinorPatch === "minor") {
-        return `${semver[1]}.${semver[2] + 1}.${semver[3]}`;
+        return `${semver[0]}.${semver[1] + 1}.${semver[2]}`;
     }
 
     if (majorMinorPatch === "patch") {
-        return `${semver[1]}.${semver[2]}.${semver[3] + 1}`;
+        return `${semver[0]}.${semver[1]}.${semver[2] + 1}`;
     }
 
     throw new Error("Invalid bump type, must be one of major/minor/patch");
@@ -40,6 +40,10 @@ function bump(semver, majorMinorPatch) {
 async function run() {
     try {
         const [ major, minor, patch ] = await gitVersion();
+        if (github.context.eventName !== "push") {
+            throw new Error("Action can only be setup to trigger on `push` events");
+        }
+        const commit = github.context.payload.headCommit;
 
 
         const prevVersion = `${major}.${minor}.${patch}`;
@@ -54,7 +58,8 @@ async function run() {
             ...github.context.repo,
             message: `autorelease bump ${prevVersion} => ${nextVersion}`,
             tag: nextVersion,
-            object: "main", // Tag the HEAD of main. Should probably instead rely on the new version of main.
+            object: commit,
+            type: "commit",
         });
 
         gh.rest.repos.createRelease({
