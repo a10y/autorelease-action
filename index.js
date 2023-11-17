@@ -9,7 +9,7 @@ const SEMVER_RE = /^(\d+)\.(\d+)\.(\d+)(-.*)?$/;
 
 async function gitVersion() {
     const output = await exec.getExecOutput("git describe --tags");
-    if (!SEMVER_RE.test(output.stdout)) {
+    if (!SEMVER_RE.test(output.stdout.trim())) {
         // Fallback
         return [0, 0, 0];
     }
